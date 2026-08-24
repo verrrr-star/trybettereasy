@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>trybettereasy.com - Platform Belajar AI Interaktif</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                            dark: '#090d16',
+                            card: '#111827',
+                            border: '#1f2937'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Mermaid.js -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <!-- JSZip -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <style>
+        body {
+            background-color: #090d16;
+            color: #f3f4f6;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #374151; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden relative">
+
+    <!-- LOGIN / PASSWORD OVERLAY (GATEKEEPER) -->
+    <div id="login-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl">
+        <div class="glass-panel w-full max-w-md rounded-3xl p-6 md:p-8 shadow-2xl border border-brand-border text-center space-y-6 relative overflow-hidden">
+            <div class="absolute -top-12 -left-12 w-32 h-32 bg-brand-600/20 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="space-y-2">
+                <div class="w-14 h-14 bg-brand-500/10 border border-brand-500/30 rounded-2xl flex items-center justify-center mx-auto text-brand-500 mb-3 shadow-lg shadow-brand-500/10">
+                    <i data-lucide="lock" class="w-7 h-7"></i>
+                </div>
+                <h2 class="text-xl font-bold text-white tracking-tight">Akses Terkunci</h2>
+                <p class="text-xs text-gray-400">Masukkan kata sandi untuk menggunakan platform trybettereasy.com</p>
+            </div>
+
+            <div class="space-y-3">
+                <div class="relative">
+                    <input type="password" id="pass-input" placeholder="Masukkan Password..." class="w-full bg-gray-900 border border-brand-border rounded-2xl px-4 py-3 text-xs text-center text-white placeholder-gray-500 focus:outline-none focus:border-brand-500 tracking-wider">
+                </div>
+                <p id="login-error" class="text-[11px] text-red-400 font-medium hidden">Password salah! Silakan coba lagi.</p>
+                
+                <button onclick="checkPassword()" class="w-full bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold py-3 rounded-2xl text-xs transition shadow-lg shadow-brand-600/30">
+                    Buka Akses
+                </button>
+            </div>
+
+            <div class="border-t border-brand-border/60 pt-4 space-y-3">
+                <p class="text-[11px] text-gray-400">Belum punya password?</p>
+                <div class="flex items-center justify-center gap-2">
+                    <a href="https://wa.me/6282132099477?text=Halo,%20saya%20mau%20minta%20password%20akses%20trybettereasy" target="_blank" class="flex-1 bg-emerald-600/10 border border-emerald-500/30 hover:bg-emerald-600/20 text-emerald-400 py-2 rounded-xl text-[11px] font-medium transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="message-square" class="w-3.5 h-3.5"></i> WhatsApp
+                    </a>
+                    <a href="https://instagram.com/apadiaapal4" target="_blank" class="flex-1 bg-pink-600/10 border border-pink-500/30 hover:bg-pink-600/20 text-pink-400 py-2 rounded-xl text-[11px] font-medium transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="instagram" class="w-3.5 h-3.5"></i> DM Instagram
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Navigation Bar -->
+    <header class="glass-panel sticky top-0 z-30 border-b border-brand-border">
+        <div class="h-14 px-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <button id="menu-btn" onclick="toggleMenu()" class="p-2 hover:bg-gray-800/80 rounded-xl text-gray-300 hover:text-white transition">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                    <div id="dropdown-menu" class="hidden absolute left-0 mt-2 w-56 bg-brand-card border border-brand-border rounded-2xl shadow-2xl py-2 z-50">
+                        <div class="px-4 py-2 border-b border-brand-border">
+                            <p class="text-[10px] text-gray-400">Pengguna Aktif:</p>
+                            <p class="text-xs font-bold text-white truncate">Siswa Pro</p>
+                        </div>
+                        <a href="#" onclick="openTab('history', 'Riwayat'); toggleMenu();" class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-300 hover:bg-brand-600 hover:text-white transition">
+                            <i data-lucide="history" class="w-4 h-4"></i> Riwayat Belajar
+                        </a>
+                        <a href="#" onclick="openTab('summary', 'Rangkuman Materi'); toggleMenu();" class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-300 hover:bg-brand-600 hover:text-white transition">
+                            <i data-lucide="file-text" class="w-4 h-4"></i> Hasil Rangkuman
+                        </a>
+                    </div>
+                </div>
+
+                <button onclick="goBack()" class="p-2 hover:bg-gray-800/80 rounded-xl text-gray-400 hover:text-white transition" title="Kembali">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                </button>
+
+                <div class="flex items-center gap-2 border-l border-brand-border pl-3">
+                    <div class="bg-gradient-to-tr from-brand-600 to-indigo-400 text-white p-1.5 rounded-xl shadow-lg shadow-brand-500/20">
+                        <i data-lucide="brain-circuit" class="w-4 h-4"></i>
+                    </div>
+                    <span class="font-extrabold text-sm tracking-tight text-white">trybettereasy<span class="text-brand-500">.com</span></span>
+                </div>
+            </div>
+
+            <div id="material-status" class="hidden flex items-center gap-2 bg-brand-500/10 border border-brand-500/30 px-3 py-1 rounded-full text-xs text-brand-500 font-medium">
+                <span class="w-2 h-2 rounded-full bg-brand-500 animate-ping"></span>
+                <span id="status-text">Dirangkum & Terhubung</span>
+            </div>
+        </div>
+
+        <div class="flex items-center px-2 bg-black/40 overflow-x-auto border-t border-brand-border/50" id="tabs-container"></div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-brand-dark">
+        <div class="max-w-6xl mx-auto space-y-6" id="content-container">
+
+            <!-- TAB: DASHBOARD -->
+            <div id="content-dashboard" class="tab-content active space-y-6">
+                
+                <section class="glass-panel rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-brand-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-5 gap-2">
+                        <div>
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i data-lucide="sparkles" class="w-5 h-5 text-brand-500"></i> Unggah Materi PPTX / PDF
+                            </h3>
+                            <p class="text-xs text-gray-400">Sistem akan mengekstrak, menganalisis kata kunci terpenting, dan merangkum isi materi secara otomatis.</p>
+                        </div>
+                    </div>
+
+                    <!-- Input Teks Utama -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-[11px] text-gray-400 font-medium">Teks Mentah Hasil Pembacaan File:</label>
+                            <span id="file-status-tag" class="text-[10px] text-emerald-400 hidden font-bold">✓ File Berhasil Dibaca & Dirangkum</span>
+                        </div>
+                        <textarea id="raw-material-text" rows="5" placeholder="Tempelkan catatan di sini, atau unggah file PPTX / PDF di bawah..." class="w-full bg-gray-900/90 border border-brand-border rounded-2xl p-4 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-brand-500 transition resize-y"></textarea>
+                    </div>
+
+                    <!-- Multi-Input Bar -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+                        <div class="relative border border-dashed border-brand-500/50 hover:border-brand-500 bg-brand-500/5 rounded-2xl p-3 text-center cursor-pointer transition flex flex-col items-center justify-center group">
+                            <input type="file" id="file-upload" accept=".pdf, .pptx, .txt" class="absolute inset-0 opacity-0 cursor-pointer" onchange="readUploadedFile(event)">
+                            <i data-lucide="file-up" class="w-5 h-5 text-brand-500 mb-1 group-hover:scale-110 transition"></i>
+                            <span id="file-label" class="text-xs text-gray-200 font-semibold truncate w-full px-2">Unggah PPTX / PDF</span>
+                            <span class="text-[9px] text-gray-400">Ekstraksi Teks & Rangkum Otomatis</span>
+                        </div>
+
+                        <div class="flex flex-col justify-center bg-gray-900/90 border border-brand-border rounded-2xl px-3 py-2">
+                            <span class="text-[10px] text-gray-400 mb-1">Tautan YouTube:</span>
+                            <div class="flex items-center">
+                                <i data-lucide="youtube" class="w-4 h-4 text-red-500 mr-2 shrink-0"></i>
+                                <input type="text" id="youtube-url" placeholder="https://youtube.com/watch?v=..." class="bg-transparent border-none text-xs text-white focus:outline-none w-full">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center bg-gray-900/90 border border-brand-border rounded-2xl px-3 py-2 justify-between">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="mic" class="w-5 h-5 text-brand-500 shrink-0"></i>
+                                <span class="text-xs text-gray-300" id="mic-status">Catatan Suara</span>
+                            </div>
+                            <button id="mic-btn" class="bg-gray-800 hover:bg-brand-600 text-xs px-3 py-1.5 rounded-xl text-white font-medium transition">Rekam</button>
+                        </div>
+                    </div>
+
+                    <!-- Kustomisasi Jumlah Flashcard & Kuis -->
+                    <div class="bg-gray-900/80 border border-brand-border rounded-2xl p-4 mb-6">
+                        <h4 class="text-xs font-bold text-white mb-3 flex items-center gap-2">
+                            <i data-lucide="sliders" class="w-4 h-4 text-brand-500"></i> Pengaturan Jumlah Fitur Belajar
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                            <div class="bg-gray-800/60 p-3 rounded-xl border border-brand-border">
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="text-gray-300 font-medium">Jumlah Flashcard</label>
+                                    <span id="val-flashcards" class="text-brand-500 font-bold">5</span>
+                                </div>
+                                <input type="range" id="cfg-flashcards" min="1" max="20" value="5" oninput="document.getElementById('val-flashcards').innerText = this.value" class="w-full accent-brand-500 cursor-pointer">
+                            </div>
+
+                            <div class="bg-gray-800/60 p-3 rounded-xl border border-brand-border">
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="text-gray-300 font-medium">Kuis Pilihan Ganda</label>
+                                    <span id="val-quizzes" class="text-brand-500 font-bold">4</span>
+                                </div>
+                                <input type="range" id="cfg-quizzes" min="1" max="15" value="4" oninput="document.getElementById('val-quizzes').innerText = this.value" class="w-full accent-brand-500 cursor-pointer">
+                            </div>
+
+                            <div class="bg-gray-800/60 p-3 rounded-xl border border-brand-border">
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="text-gray-300 font-medium">Soal Essay</label>
+                                    <span id="val-essays" class="text-brand-500 font-bold">2</span>
+                                </div>
+                                <input type="range" id="cfg-essays" min="1" max="10" value="2" oninput="document.getElementById('val-essays').innerText = this.value" class="w-full accent-brand-500 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="flex items-center justify-end">
+                        <button onclick="processAndGenerateAll()" class="w-full sm:w-auto bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold px-8 py-3.5 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-xl shadow-brand-600/30 transition transform active:scale-95">
+                            <i data-lucide="wand-2" class="w-4 h-4"></i>
+                            <span>PROSES RANGKUMAN & GENERATE FITUR</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- YouTube Player -->
+                <section id="youtube-player-section" class="hidden glass-panel rounded-3xl p-6 shadow-xl">
+                    <h4 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                        <i data-lucide="play-circle" class="text-red-500"></i> Video Terhubung
+                    </h4>
+                    <div class="aspect-video w-full max-w-3xl mx-auto rounded-2xl overflow-hidden bg-black border border-brand-border shadow-2xl">
+                        <iframe id="youtube-iframe" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </section>
+
+                <!-- Navigation Cards -->
+                <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="glass-panel rounded-2xl p-5 border border-brand-border hover:border-brand-500/50 transition">
+                        <div class="bg-brand-500/10 text-brand-500 w-10 h-10 rounded-xl flex items-center justify-center mb-3">
+                            <i data-lucide="file-text" class="w-5 h-5"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-1">Rangkuman AI</h4>
+                        <p class="text-xs text-gray-400 mb-4">Inti poin terpenting dari file yang diunggah.</p>
+                        <button onclick="openTab('summary', 'Rangkuman Materi')" class="w-full bg-gray-800 hover:bg-brand-600 hover:text-white text-gray-300 text-xs py-2.5 rounded-xl font-medium transition">Lihat Rangkuman</button>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-5 border border-brand-border hover:border-brand-500/50 transition">
+                        <div class="bg-brand-500/10 text-brand-500 w-10 h-10 rounded-xl flex items-center justify-center mb-3">
+                            <i data-lucide="layers" class="w-5 h-5"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-1">Flashcards</h4>
+                        <p class="text-xs text-gray-400 mb-4">Kartu hafalan otomatis dari ide utama rangkuman.</p>
+                        <button onclick="openTab('flashcard', 'Flashcard')" class="w-full bg-gray-800 hover:bg-brand-600 hover:text-white text-gray-300 text-xs py-2.5 rounded-xl font-medium transition">Buka Flashcard</button>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-5 border border-brand-border hover:border-brand-500/50 transition">
+                        <div class="bg-brand-500/10 text-brand-500 w-10 h-10 rounded-xl flex items-center justify-center mb-3">
+                            <i data-lucide="help-circle" class="w-5 h-5"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-1">Kuis & Essay</h4>
+                        <p class="text-xs text-gray-400 mb-4">Uji pemahaman berdasarkan hasil rangkuman.</p>
+                        <button onclick="openTab('kuis', 'Kuis & Essay')" class="w-full bg-gray-800 hover:bg-brand-600 hover:text-white text-gray-300 text-xs py-2.5 rounded-xl font-medium transition">Buka Kuis</button>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-5 border border-brand-border hover:border-brand-500/50 transition">
+                        <div class="bg-brand-500/10 text-brand-500 w-10 h-10 rounded-xl flex items-center justify-center mb-3">
+                            <i data-lucide="git-fork" class="w-5 h-5"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-1">Mind Map Visual</h4>
+                        <p class="text-xs text-gray-400 mb-4">Bagan konsep utama hasil rangkuman materi.</p>
+                        <button onclick="openTab('mindmap', 'Mind Map')" class="w-full bg-gray-800 hover:bg-brand-600 hover:text-white text-gray-300 text-xs py-2.5 rounded-xl font-medium transition">Buka Mind Map</button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB: RANGKUMAN MATERI -->
+            <div id="content-summary" class="tab-content glass-panel rounded-3xl p-6">
+                <h3 class="text-lg font-bold text-white mb-1"><i data-lucide="file-text" class="text-brand-500 inline mr-2"></i>Hasil Rangkuman Materi Dokumen</h3>
+                <p class="text-xs text-gray-400 mb-6">Analisis ekstraksi poin-poin paling penting dari file yang kamu unggah.</p>
+
+                <div class="space-y-6 text-xs text-gray-300">
+                    <div class="bg-gray-900/90 border border-brand-border rounded-2xl p-5">
+                        <h4 class="text-sm font-bold text-brand-500 mb-2" id="summary-title">Topik: Belum Ada File</h4>
+                        <p id="summary-exec" class="text-gray-300 leading-relaxed">Silakan unggah dokumen PPTX atau PDF di dashboard untuk memproses rangkuman.</p>
+                    </div>
+
+                    <div class="bg-gray-900/90 border border-brand-border rounded-2xl p-5">
+                        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i> Ringkasan Ide Pokok
+                        </h4>
+                        <ul id="summary-points" class="space-y-2 list-disc list-inside text-gray-300">
+                            <li class="italic text-gray-500">Belum ada poin tersimpan...</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gray-900/90 border border-brand-border rounded-2xl p-5">
+                        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <i data-lucide="key" class="w-4 h-4 text-brand-500"></i> Kata Kunci Utama
+                        </h4>
+                        <div id="summary-keywords" class="flex flex-wrap gap-2">
+                            <span class="text-gray-500 italic">Belum ada kata kunci</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: FLASHCARD -->
+            <div id="content-flashcard" class="tab-content glass-panel rounded-3xl p-6 text-center">
+                <h3 class="text-lg font-bold text-white mb-1"><i data-lucide="layers" class="text-brand-500 inline mr-2"></i>Flashcard Berdasar Rangkuman</h3>
+                <p class="text-xs text-gray-400 mb-6">Klik kartu untuk melihat jawaban.</p>
+
+                <div class="max-w-md mx-auto perspective-1000">
+                    <div id="flashcard-card" onclick="flipCard()" class="relative w-full h-64 bg-gray-900 border border-brand-border rounded-3xl p-6 cursor-pointer transition-transform duration-500 transform-style-3d shadow-2xl flex items-center justify-center">
+                        <div id="card-front" class="absolute inset-0 backface-hidden flex flex-col items-center justify-center p-6 text-center">
+                            <span class="text-[10px] text-brand-500 font-bold uppercase tracking-wider mb-2">Pertanyaan</span>
+                            <p id="flashcard-q" class="text-sm font-medium text-white">Unggah file lalu proses rangkuman terlebih dahulu.</p>
+                        </div>
+                        <div id="card-back" class="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 text-center bg-indigo-950/60 rounded-3xl border border-indigo-500/30">
+                            <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mb-2">Jawaban (Rangkuman)</span>
+                            <p id="flashcard-a" class="text-sm font-medium text-gray-200">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-center gap-4 mt-6">
+                    <button onclick="prevCard()" class="p-2.5 bg-gray-900 hover:bg-gray-800 border border-brand-border rounded-xl text-gray-300"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                    <span id="card-counter" class="text-xs text-gray-400 font-medium">Kartu 0 dari 0</span>
+                    <button onclick="nextCard()" class="p-2.5 bg-gray-900 hover:bg-gray-800 border border-brand-border rounded-xl text-gray-300"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+
+            <!-- TAB: KUIS & ESSAY -->
+            <div id="content-kuis" class="tab-content glass-panel rounded-3xl p-6">
+                <h3 class="text-lg font-bold text-white mb-1"><i data-lucide="help-circle" class="text-brand-500 inline mr-2"></i>Kuis & Essay Interaktif</h3>
+                <p class="text-xs text-gray-400 mb-6">Diambil dari poin terpenting rangkuman dokumen.</p>
+
+                <div class="mb-8">
+                    <h4 class="text-xs font-bold text-brand-500 uppercase tracking-wider mb-4 border-b border-brand-border pb-2">Bagian I: Pilihan Ganda</h4>
+                    <div id="quiz-container" class="space-y-4">
+                        <p class="text-xs text-gray-500 italic">Belum ada soal kuis.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold text-brand-500 uppercase tracking-wider mb-4 border-b border-brand-border pb-2">Bagian II: Soal Essay</h4>
+                    <div id="essay-container" class="space-y-4">
+                        <p class="text-xs text-gray-500 italic">Belum ada soal essay.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: MIND MAP -->
+            <div id="content-mindmap" class="tab-content glass-panel rounded-3xl p-6">
+                <h3 class="text-lg font-bold text-white mb-1"><i data-lucide="git-fork" class="text-brand-500 inline mr-2"></i>Mind Map Bagan Rangkuman</h3>
+                <p class="text-xs text-gray-400 mb-6">Struktur hirarki ide-ide pokok yang dirangkum.</p>
+                
+                <div class="bg-gray-900/90 border border-brand-border rounded-2xl p-6 overflow-x-auto flex justify-center min-h-[320px]">
+                    <div id="mermaid-target" class="mermaid text-center">
+                        graph TD
+                        A[Belum Ada File] --> B[Silakan Unggah PPTX/PDF]
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: HISTORY -->
+            <div id="content-history" class="tab-content glass-panel rounded-3xl p-6">
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="history" class="text-brand-500"></i> Riwayat Belajar</h3>
+                <ul class="space-y-2 text-xs text-gray-300" id="history-list"></ul>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+
+        // LOGIC AUTH / PASSWORD
+        function checkPassword() {
+            const val = document.getElementById('pass-input').value.trim();
+            const err = document.getElementById('login-error');
+
+            if (val === "GALIHGANTENG") {
+                document.getElementById('login-overlay').classList.add('hidden');
+                err.classList.add('hidden');
+            } else {
+                err.classList.remove('hidden');
+            }
+        }
+
+        // Jalankan Enter Key pada Input Password
+        document.getElementById('pass-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        let tabs = [{ id: 'dashboard', title: 'Dashboard' }];
+        let activeTabId = 'dashboard';
+        let navigationHistory = ['dashboard'];
+
+        let currentData = {
+            title: "",
+            executiveSummary: "",
+            keyPoints: [],
+            keywords: [],
+            flashcards: [],
+            quizzes: [],
+            essays: [],
+            mindmapMermaid: ""
+        };
+
+        let currentCardIndex = 0;
+        let isFlipped = false;
+
+        function renderTabs() {
+            const container = document.getElementById('tabs-container');
+            container.innerHTML = '';
+
+            tabs.forEach(tab => {
+                const isActive = tab.id === activeTabId;
+                const tabEl = document.createElement('div');
+                tabEl.className = `flex items-center gap-2 px-3.5 py-2 text-xs border-b-2 cursor-pointer transition select-none ${
+                    isActive 
+                    ? 'border-brand-500 bg-gray-900/80 text-white font-bold' 
+                    : 'border-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-900/40'
+                }`;
+                tabEl.onclick = () => switchTab(tab.id);
+                tabEl.innerHTML = `
+                    <span>${tab.title}</span>
+                    ${tab.id !== 'dashboard' ? `<button onclick="closeTab(event, '${tab.id}')" class="hover:bg-gray-700/50 p-0.5 rounded text-gray-400 hover:text-white"><i data-lucide="x" class="w-3 h-3"></i></button>` : ''}
+                `;
+                container.appendChild(tabEl);
+            });
+
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            const targetContent = document.getElementById(`content-${activeTabId}`);
+            if(targetContent) targetContent.classList.add('active');
+            lucide.createIcons();
+        }
+
+        function openTab(id, title) {
+            if (!tabs.some(t => t.id === id)) tabs.push({ id, title });
+            switchTab(id);
+        }
+
+        function switchTab(id) {
+            if (activeTabId !== id) navigationHistory.push(id);
+            activeTabId = id;
+            renderTabs();
+        }
+
+        function closeTab(event, id) {
+            event.stopPropagation();
+            tabs = tabs.filter(t => t.id !== id);
+            if (activeTabId === id) activeTabId = tabs[tabs.length - 1].id;
+            renderTabs();
+        }
+
+        function goBack() {
+            if (navigationHistory.length > 1) {
+                navigationHistory.pop();
+                activeTabId = navigationHistory[navigationHistory.length - 1];
+                renderTabs();
+            }
+        }
+
+        function toggleMenu() {
+            document.getElementById('dropdown-menu').classList.toggle('hidden');
+        }
+
+        // BACA FILE PDF/PPTX
+        async function readUploadedFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const label = document.getElementById('file-label');
+            const textArea = document.getElementById('raw-material-text');
+
+            label.innerText = "Membaca: " + file.name + "...";
+            textArea.value = "Sedang mengekstrak teks dari file " + file.name + "...";
+
+            const fileExt = file.name.split('.').pop().toLowerCase();
+
+            try {
+                let extractedText = "";
+                if (fileExt === 'pdf') {
+                    extractedText = await parsePDF(file);
+                } else if (fileExt === 'pptx') {
+                    extractedText = await parsePPTX(file);
+                } else if (fileExt === 'txt') {
+                    extractedText = await file.text();
+                } else {
+                    alert("Format tidak didukung.");
+                    label.innerText = "Unggah PPTX / PDF";
+                    return;
+                }
+
+                if (extractedText.trim().length > 0) {
+                    textArea.value = extractedText;
+                    label.innerText = file.name;
+                    processAndGenerateAll();
+                } else {
+                    textArea.value = "";
+                    alert("File tidak berisi teks yang dapat dibaca.");
+                    label.innerText = "Unggah PPTX / PDF";
+                }
+            } catch (err) {
+                console.error("Gagal membaca file:", err);
+                alert("Terjadi kesalahan saat memproses file.");
+                label.innerText = "Unggah PPTX / PDF";
+            }
+        }
+
+        // PARSER PDF
+        async function parsePDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let text = "";
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                const pageText = content.items.map(item => item.str).join(" ");
+                text += `--- Halaman ${i} ---\n` + pageText + "\n\n";
+            }
+            return text;
+        }
+
+        // PARSER PPTX VIA JSZIP
+        async function parsePPTX(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const zip = await JSZip.loadAsync(arrayBuffer);
+            let text = "";
+            let slideIndex = 1;
+
+            const slideFiles = Object.keys(zip.files).filter(fileName => fileName.startsWith("ppt/slides/slide") && fileName.endsWith(".xml"));
+            slideFiles.sort((a, b) => {
+                const numA = parseInt(a.match(/\d+/)[0]);
+                const numB = parseInt(b.match(/\d+/)[0]);
+                return numA - numB;
+            });
+
+            for (const fileName of slideFiles) {
+                const slideXml = await zip.files[fileName].async("text");
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(slideXml, "text/xml");
+                const textNodes = xmlDoc.getElementsByTagName("a:t");
+                let slideText = "";
+                for (let i = 0; i < textNodes.length; i++) {
+                    slideText += textNodes[i].textContent + " ";
+                }
+                if (slideText.trim()) {
+                    text += `--- Slide ${slideIndex} ---\n` + slideText.trim() + "\n\n";
+                    slideIndex++;
+                }
+            }
+            return text;
+        }
+
+        // PROSES UTAMA RANGKUMAN & GENERASI FITUR
+        function processAndGenerateAll() {
+            const rawText = document.getElementById('raw-material-text').value.trim();
+            if (!rawText) {
+                alert("Silakan masukkan teks atau unggah file materi terlebih dahulu.");
+                return;
+            }
+
+            const numCards = parseInt(document.getElementById('cfg-flashcards').value) || 5;
+            const numQuizzes = parseInt(document.getElementById('cfg-quizzes').value) || 4;
+            const numEssays = parseInt(document.getElementById('cfg-essays').value) || 2;
+
+            // Ekstraksi sederhanakan poin utama
+            const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 10 && !l.startsWith('---'));
+            const title = lines[0] ? lines[0].substring(0, 60) : "Materi Pembelajaran";
+            
+            currentData.title = title;
+            currentData.executiveSummary = lines.slice(0, 3).join(' ') || "Rangkuman dari teks materi yang diunggah.";
+            currentData.keyPoints = lines.slice(0, Math.max(5, lines.length / 2));
+            
+            // Ekstraksi kata kunci
+            const words = rawText.replace(/[^\w\s]/gi, '').split(/\s+/).filter(w => w.length > 5);
+            currentData.keywords = [...new Set(words)].slice(0, 8);
+
+            // Generate Flashcards
+            currentData.flashcards = [];
+            for (let i = 0; i < numCards; i++) {
+                const point = currentData.keyPoints[i % currentData.keyPoints.length] || `Konsep penting materi ke-${i+1}`;
+                currentData.flashcards.push({
+                    q: `Apa poin penting mengenai: "${point.substring(0, 40)}..."?`,
+                    a: point
+                });
+            }
+
+            // Generate Quizzes
+            currentData.quizzes = [];
+            for (let i = 0; i < numQuizzes; i++) {
+                const point = currentData.keyPoints[i % currentData.keyPoints.length] || "Konsep Utama";
+                currentData.quizzes.push({
+                    question: `Berdasarkan materi, manakah pernyataan yang BENAR mengenai "${point.substring(0, 30)}..."?`,
+                    options: [
+                        point,
+                        "Pernyataan alternatif A yang tidak sesuai",
+                        "Pernyataan alternatif B yang keliru",
+                        "Semua jawaban di atas salah"
+                    ],
+                    answer: 0
+                });
+            }
+
+            // Generate Essays
+            currentData.essays = [];
+            for (let i = 0; i < numEssays; i++) {
+                const point = currentData.keyPoints[i % currentData.keyPoints.length] || "Topik utama";
+                currentData.essays.push({
+                    question: `Jelaskan secara mendalam tentang ${point.substring(0, 50)}!`,
+                    hint: `Petunjuk: Kaitkan penjelasan Anda dengan konsep dasar yang ada pada dokumen.`
+                });
+            }
+
+            // Generate Mindmap (Mermaid syntax)
+            let mindmapCode = `graph TD\n  Root["${title.replace(/["\\]/g, '')}"]`;
+            currentData.keywords.slice(0, 4).forEach((kw, idx) => {
+                mindmapCode += `\n  Root --> Node${idx}["${kw}"]`;
+            });
+            currentData.mindmapMermaid = mindmapCode;
+
+            // Render tampilan
+            renderSummaryUI();
+            renderFlashcardUI();
+            renderQuizUI();
+            renderMindmapUI();
+
+            document.getElementById('material-status').classList.remove('hidden');
+            document.getElementById('file-status-tag').classList.remove('hidden');
+
+            // Tambahkan ke riwayat
+            const historyList = document.getElementById('history-list');
+            const li = document.createElement('li');
+            li.className = "bg-gray-900/60 p-3 rounded-xl border border-brand-border flex justify-between items-center";
+            li.innerHTML = `<span>${title}</span> <span class="text-[10px] text-brand-500">${new Date().toLocaleTimeString()}</span>`;
+            historyList.prepend(li);
+
+            alert("Materi berhasil dirangkum dan semua fitur pembelajaran telah diperbarui!");
+        }
+
+        // RENDER RANGKUMAN
+        function renderSummaryUI() {
+            document.getElementById('summary-title').innerText = "Topik: " + currentData.title;
+            document.getElementById('summary-exec').innerText = currentData.executiveSummary;
+            
+            const pointsUl = document.getElementById('summary-points');
+            pointsUl.innerHTML = currentData.keyPoints.map(pt => `<li class="leading-relaxed">${pt}</li>`).join('');
+
+            const kwContainer = document.getElementById('summary-keywords');
+            kwContainer.innerHTML = currentData.keywords.map(kw => `<span class="bg-brand-500/20 text-brand-500 border border-brand-500/30 px-3 py-1 rounded-lg text-[11px] font-semibold">${kw}</span>`).join('');
+        }
+
+        // RENDER FLASHCARD
+        function renderFlashcardUI() {
+            currentCardIndex = 0;
+            isFlipped = false;
+            updateCardDisplay();
+        }
+
+        function updateCardDisplay() {
+            const card = document.getElementById('flashcard-card');
+            if (isFlipped) {
+                card.classList.add('rotate-y-180');
+            } else {
+                card.classList.remove('rotate-y-180');
+            }
+
+            if (currentData.flashcards.length === 0) {
+                document.getElementById('flashcard-q').innerText = "Belum ada kartu.";
+                document.getElementById('flashcard-a').innerText = "-";
+                document.getElementById('card-counter').innerText = "Kartu 0 dari 0";
+                return;
+            }
+
+            const current = currentData.flashcards[currentCardIndex];
+            document.getElementById('flashcard-q').innerText = current.q;
+            document.getElementById('flashcard-a').innerText = current.a;
+            document.getElementById('card-counter').innerText = `Kartu ${currentCardIndex + 1} dari ${currentData.flashcards.length}`;
+        }
+
+        function flipCard() {
+            if (currentData.flashcards.length === 0) return;
+            isFlipped = !isFlipped;
+            const card = document.getElementById('flashcard-card');
+            if (isFlipped) {
+                card.classList.add('rotate-y-180');
+            } else {
+                card.classList.remove('rotate-y-180');
+            }
+        }
+
+        function nextCard() {
+            if (currentData.flashcards.length === 0) return;
+            isFlipped = false;
+            currentCardIndex = (currentCardIndex + 1) % currentData.flashcards.length;
+            updateCardDisplay();
+        }
+
+        function prevCard() {
+            if (currentData.flashcards.length === 0) return;
+            isFlipped = false;
+            currentCardIndex = (currentCardIndex - 1 + currentData.flashcards.length) % currentData.flashcards.length;
+            updateCardDisplay();
+        }
+
+        // RENDER KUIS & ESSAY
+        function renderQuizUI() {
+            const quizContainer = document.getElementById('quiz-container');
+            quizContainer.innerHTML = currentData.quizzes.map((q, idx) => `
+                <div class="bg-gray-900/90 border border-brand-border rounded-2xl p-4">
+                    <p class="text-xs font-semibold text-white mb-3">${idx + 1}. ${q.question}</p>
+                    <div class="space-y-2">
+                        ${q.options.map((opt, optIdx) => `
+                            <button onclick="checkAnswer(${idx}, ${optIdx}, this)" class="w-full text-left bg-gray-800/80 hover:bg-gray-700 p-2.5 rounded-xl text-xs text-gray-300 transition flex items-center justify-between">
+                                <span>${String.fromCharCode(65 + optIdx)}. ${opt}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            const essayContainer = document.getElementById('essay-container');
+            essayContainer.innerHTML = currentData.essays.map((e, idx) => `
+                <div class="bg-gray-900/90 border border-brand-border rounded-2xl p-4">
+                    <p class="text-xs font-semibold text-white mb-2">${idx + 1}. ${e.question}</p>
+                    <p class="text-[10px] text-gray-400 mb-3 italic">${e.hint}</p>
+                    <textarea rows="3" placeholder="Tuliskan jawaban Anda di sini..." class="w-full bg-gray-800 border border-brand-border rounded-xl p-3 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-brand-500 transition"></textarea>
+                </div>
+            `).join('');
+        }
+
+        function checkAnswer(quizIdx, selectedOptIdx, btnEl) {
+            const quiz = currentData.quizzes[quizIdx];
+            const parent = btnEl.parentElement;
+            const buttons = parent.querySelectorAll('button');
+
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === quiz.answer) {
+                    btn.classList.remove('bg-gray-800/80', 'hover:bg-gray-700');
+                    btn.classList.add('bg-emerald-600/30', 'border', 'border-emerald-500', 'text-emerald-300');
+                } else if (idx === selectedOptIdx) {
+                    btn.classList.remove('bg-gray-800/80', 'hover:bg-gray-700');
+                    btn.classList.add('bg-red-600/30', 'border', 'border-red-500', 'text-red-300');
+                }
+            });
+        }
+
+        // RENDER MINDMAP
+        function renderMindmapUI() {
+            const target = document.getElementById('mermaid-target');
+            target.removeAttribute('data-processed');
+            target.innerHTML = currentData.mindmapMermaid;
+            mermaid.contentLoaded();
+        }
+
+        // Inisialisasi tampilan awal
+        renderTabs();
+    </script>
+</body>
+</html>dzaky zeva 67
